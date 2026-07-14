@@ -46,12 +46,14 @@ jobs:
         working-directory: frontend
         run: npm audit --audit-level=high || true   # warn only
 
-      # react-scripts ships ESLint – build catches lint errors too
+      # react-scripts 3.x uses webpack 4 which is incompatible with
+      # Node 17+ OpenSSL 3. NODE_OPTIONS=--openssl-legacy-provider re-enables
+      # the legacy MD4 hash support required by that webpack version.
       - name: Build React app (validates lint & compilation)
         working-directory: frontend
         env:
-          # Prevent react-scripts from treating warnings as errors in CI
           CI: false
+          NODE_OPTIONS: --openssl-legacy-provider
         run: npm run build
 
       # Run Jest unit tests (CI=true makes them non-interactive)
@@ -59,6 +61,7 @@ jobs:
         working-directory: frontend
         env:
           CI: true
+          NODE_OPTIONS: --openssl-legacy-provider
         run: npm test -- --watchAll=false --passWithNoTests
 
   # ─────────────────────────────────────────────────────────

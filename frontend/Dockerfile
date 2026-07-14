@@ -1,5 +1,8 @@
 # Build Stage
-FROM node:16-alpine AS builder
+# node:18-alpine is used because react-scripts 3.x bundles webpack 4,
+# which uses MD4 hashes unsupported by OpenSSL 3 (Node 17+).
+# NODE_OPTIONS=--openssl-legacy-provider re-enables the legacy provider.
+FROM node:18-alpine AS builder
 
 WORKDIR /app
 
@@ -8,6 +11,8 @@ COPY package*.json ./
 RUN npm install
 
 COPY . .
+
+ENV NODE_OPTIONS=--openssl-legacy-provider
 
 RUN npm run build
 
